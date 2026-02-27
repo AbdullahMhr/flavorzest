@@ -23,17 +23,14 @@ export default function AdminLogin() {
         }
     }, [isAuthenticated, router]);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (username === "admin") {
-            const success = login(password);
-            if (success) {
-                router.push("/admin/dashboard");
-            } else {
-                setError("Invalid password");
-            }
+        setError(""); // clear previous errors
+        const success = await login(password, username);
+        if (success) {
+            router.push("/admin/dashboard");
         } else {
-            setError("Invalid username");
+            setError("Invalid Administrative Credentials");
         }
     };
 
@@ -47,32 +44,35 @@ export default function AdminLogin() {
                             <Lock className="h-6 w-6 text-primary" />
                         </div>
                         <h1 className="text-2xl font-bold">Admin Panel</h1>
-                        <p className="text-muted-foreground">Sign in to manage products</p>
+                        <p className="text-muted-foreground text-center">Restricted Access.<br />Please authorize your session.</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div>
-                            <label className="text-sm font-medium mb-1 block">Username</label>
+                            <label className="text-sm font-medium mb-1 block">Administrator Email</label>
                             <Input
+                                type="email"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                placeholder="admin"
+                                placeholder="admin@domain.com"
+                                required
                             />
                         </div>
                         <div>
-                            <label className="text-sm font-medium mb-1 block">Password</label>
+                            <label className="text-sm font-medium mb-1 block">Secure Password</label>
                             <Input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="•••••"
+                                placeholder="••••••••"
+                                required
                             />
                         </div>
 
                         {error && <p className="text-sm text-destructive">{error}</p>}
 
                         <Button type="submit" className="w-full">
-                            Sign In
+                            Authorize Login
                         </Button>
                     </form>
                 </div>

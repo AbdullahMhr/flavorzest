@@ -77,14 +77,14 @@ export function Header() {
     };
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/40">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <div className="flex items-center gap-4">
                     {/* Mobile Menu Button */}
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="md:hidden"
+                        className="md:hidden hover:text-primary hover:bg-primary/10 transition-colors"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                         <Menu className="h-5 w-5" />
@@ -108,49 +108,64 @@ export function Header() {
                     </Link>
                 </div>
 
-                <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+                <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
                     {["/", "/collection", "/about", "/contact"].map((path) => (
                         <LanguageLink key={path} path={path} />
                     ))}
                 </nav>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                     {isSearchOpen ? (
                         <form onSubmit={handleSearch} className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4">
                             <Input
                                 placeholder="Search..."
-                                className="h-9 w-[150px] md:w-[200px]"
+                                className="h-9 w-[150px] md:w-[200px] border-primary/30 focus-visible:ring-primary/50"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 autoFocus
                             />
-                            <Button type="submit" size="sm" variant="ghost">Go</Button>
-                            <Button type="button" size="sm" variant="ghost" onClick={() => setIsSearchOpen(false)}>X</Button>
+                            <Button type="submit" size="sm" variant="ghost" className="hover:text-primary hover:bg-primary/10">Go</Button>
+                            <Button type="button" size="sm" variant="ghost" className="hover:text-primary hover:bg-primary/10" onClick={() => setIsSearchOpen(false)}>X</Button>
                         </form>
                     ) : (
-                        <Button variant="ghost" size="icon" aria-label="Search" onClick={() => setIsSearchOpen(true)}>
-                            <Search className="h-5 w-5" />
-                        </Button>
+                        <div className="relative group flex items-center justify-center">
+                            <Button variant="ghost" size="icon" aria-label="Search" onClick={() => setIsSearchOpen(true)} className="hover:text-primary hover:bg-primary/10 transition-colors">
+                                <Search className="h-5 w-5" />
+                            </Button>
+                            <span className="absolute -bottom-10 scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 bg-background/95 text-primary text-xs py-1 px-2 rounded-md backdrop-blur-sm border border-primary/30 whitespace-nowrap z-[60]">
+                                Search
+                            </span>
+                        </div>
                     )}
 
-                    <Button variant="ghost" size="icon" aria-label="Account" className="hidden sm:inline-flex">
-                        <Link href="/admin"><User className="h-5 w-5" /></Link>
-                    </Button>
+                    <div className="relative group hidden sm:flex items-center justify-center">
+                        <Button variant="ghost" size="icon" aria-label="Account" className="hover:text-primary hover:bg-primary/10 transition-colors" asChild>
+                            <Link href="/admin"><User className="h-5 w-5" /></Link>
+                        </Button>
+                        <span className="absolute -bottom-10 scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 bg-background/95 text-primary text-xs py-1 px-2 rounded-md backdrop-blur-sm border border-primary/30 whitespace-nowrap z-[60]">
+                            Admin
+                        </span>
+                    </div>
 
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Cart"
-                        onClick={() => setIsCartOpen(true)}
-                        className="relative"
-                    >
-                        <ShoppingBag className="h-5 w-5" />
-                        {cartCount > 0 && (
-                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in">
-                                {cartCount}
-                            </span>
-                        )}
-                    </Button>
+                    <div className="relative group flex items-center justify-center">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Cart"
+                            onClick={() => setIsCartOpen(true)}
+                            className="relative hover:text-primary hover:bg-primary/10 transition-colors"
+                        >
+                            <ShoppingBag className="h-5 w-5" />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Button>
+                        <span className="absolute -bottom-10 scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 bg-background/95 text-primary text-xs py-1 px-2 rounded-md backdrop-blur-sm border border-primary/30 whitespace-nowrap z-[60]">
+                            Cart
+                        </span>
+                    </div>
                 </div>
             </div>
 

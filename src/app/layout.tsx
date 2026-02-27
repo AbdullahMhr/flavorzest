@@ -7,6 +7,8 @@ import { CartProvider } from "@/lib/context/CartContext";
 import { CartDrawer } from "@/components/feature/CartDrawer";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { NotificationProvider } from "@/lib/context/NotificationContext";
+import { BackgroundLines } from "@/components/layout/BackgroundLines";
+import { SettingsProvider } from "@/lib/context/SettingsContext";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -16,6 +18,11 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "FlavorZest | Luxury Fragrances",
   description: "Discover your signature scent with FlavorZest's exclusive collection of luxury perfumes.",
+  manifest: "/manifest.json",
+};
+
+export const viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -25,17 +32,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn("min-h-screen bg-background font-sans antialiased", manrope.variable)}>
-        <ProductProvider>
-          <CartProvider>
-            <AuthProvider>
-              <NotificationProvider>
-                {children}
-                <CartDrawer />
-              </NotificationProvider>
-            </AuthProvider>
-          </CartProvider>
-        </ProductProvider>
+      <body className={cn("min-h-screen bg-background font-sans antialiased", manrope.variable)} suppressHydrationWarning>
+        <SettingsProvider>
+          <ProductProvider>
+            <CartProvider>
+              <AuthProvider>
+                <NotificationProvider>
+                  <BackgroundLines />
+                  <div className="relative z-10 w-full h-full">
+                    {children}
+                    <CartDrawer />
+                  </div>
+                </NotificationProvider>
+              </AuthProvider>
+            </CartProvider>
+          </ProductProvider>
+        </SettingsProvider>
       </body>
     </html>
   );

@@ -11,6 +11,7 @@ export interface Product {
     description: string;
     image: string;
     category: string;
+    gender: "Men" | "Women" | "Unisex";
     notes: {
         top: string;
         heart: string;
@@ -19,4 +20,8 @@ export interface Product {
     variants: ProductVariant[];
     origin: string;
     isSignature: boolean;
+    order?: number;
+    isHidden?: boolean;
+    discount?: number;
+    discountEndDate?: string;
 }

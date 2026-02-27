@@ -8,6 +8,7 @@ export const PRODUCTS: Product[] = [
         description: "A mysterious and captivating fragrance that blends the richness of agarwood with the warmth of spices. The Midnight Oud is an olfactory journey into the heart of the night, where secrets are whispered and elegance reigns supreme.",
         image: "https://images.unsplash.com/photo-1594035910387-fea4779426e9?q=80&w=800&auto=format&fit=crop",
         category: "Unisex",
+        gender: "Unisex",
         notes: {
             top: "Bergamot, Saffron",
             heart: "Rose, Oud Wood",
@@ -28,6 +29,7 @@ export const PRODUCTS: Product[] = [
         description: "A radiant blend of golden amber and white florals, embodying elegance and grace. Aurum Elixir captures the essence of pure gold, delivering a luminous scent that lingers like a precious memory.",
         image: "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=800&auto=format&fit=crop",
         category: "Women",
+        gender: "Women",
         notes: {
             top: "Pear, Neroli",
             heart: "Jasmine, Orange Blossom",
@@ -48,6 +50,7 @@ export const PRODUCTS: Product[] = [
         description: "A bold and sophisticated scent for the modern man, featuring dark spices and leather. Noir Intense is a statement of power and confidence, designed for those who command attention without saying a word.",
         image: "https://images.unsplash.com/photo-1523293188086-b589b9e54020?q=80&w=800&auto=format&fit=crop",
         category: "Men",
+        gender: "Men",
         notes: {
             top: "Black Pepper, Cardamom",
             heart: "Leather, Tobacco",
@@ -68,6 +71,7 @@ export const PRODUCTS: Product[] = [
         description: "A tribute to the queen of flowers, this scent pairs velvety rose with a hint of citrus. Rose Royale is a romantic and regal fragrance that celebrates femininity in its most exquisite form.",
         image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=800&auto=format&fit=crop",
         category: "Women",
+        gender: "Women",
         notes: {
             top: "Mandarin, Lychee",
             heart: "Damask Rose, Peony",
@@ -88,6 +92,7 @@ export const PRODUCTS: Product[] = [
         description: "Fresh and invigorating, capturing the spirit of the sea with marine notes and citrus. Oceanic Breeze brings the freedom of the open ocean to your daily life, perfect for the adventurous spirit.",
         image: "https://images.unsplash.com/photo-1583445013765-46c20c4a6772?q=80&w=800&auto=format&fit=crop",
         category: "Unisex",
+        gender: "Unisex",
         notes: {
             top: "Sea Salt, Lemon",
             heart: "Sage, Seaweed",
@@ -108,6 +113,7 @@ export const PRODUCTS: Product[] = [
         description: "Warm and masculine, blending rich leather with exotic spices for a powerful statement. Spiced Leather is a classic scent reimagined for the contemporary gentleman who appreciates tradition and quality.",
         image: "https://images.unsplash.com/photo-1615160359797-a84accd09ae8?q=80&w=800&auto=format&fit=crop",
         category: "Men",
+        gender: "Men",
         notes: {
             top: "Cinnamon, Clove",
             heart: "Leather, Iris",

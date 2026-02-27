@@ -18,7 +18,9 @@ function ProductContent() {
     const { addToCart } = useCart();
     const [selectedSize, setSelectedSize] = useState<string>("");
     const [currentPrice, setCurrentPrice] = useState<number>(0);
+    const [currentQuantity, setCurrentQuantity] = useState<number>(0);
     const [productFound, setProductFound] = useState(false);
+    const [addToCartFeedback, setAddToCartFeedback] = useState(false);
 
     // Find product
     const product = products.find(p => p.id === id);
@@ -33,8 +35,11 @@ function ProductContent() {
                     const defaultVariant = inStockVariant || product.variants[0];
                     setSelectedSize(defaultVariant.size);
                     setCurrentPrice(defaultVariant.price);
+                    setCurrentQuantity(defaultVariant.quantity);
                 } else {
                     setCurrentPrice(product.price);
+                    // Legacy products without variants might not have quantity tracked, assume 0 or 1 for safety, let's say 1
+                    setCurrentQuantity(1);
                 }
             }
         }
@@ -55,17 +60,33 @@ function ProductContent() {
         const variant = product.variants?.find(v => v.size === size);
         if (variant) {
             setCurrentPrice(variant.price);
+            setCurrentQuantity(variant.quantity);
         }
     };
 
+    const isDiscountValid = () => {
+        if (!product.discount || product.discount <= 0) return false;
+        if (!product.discountEndDate) return true;
+        return new Date() <= new Date(product.discountEndDate);
+    };
+
+    const isDiscounted = isDiscountValid();
+
     const handleAddToCart = () => {
+        const activePrice = isDiscounted && product.discount
+            ? Math.floor(currentPrice * ((100 - product.discount) / 100))
+            : currentPrice;
+
         addToCart({
             productId: product.id,
             name: product.name,
-            price: currentPrice,
+            price: activePrice,
             image: product.image || "",
             size: selectedSize || "Standard"
         });
+
+        setAddToCartFeedback(true);
+        setTimeout(() => setAddToCartFeedback(false), 3000);
     };
 
     return (
@@ -99,20 +120,38 @@ function ProductContent() {
                     className="space-y-8"
                 >
                     <div>
+                        {isDiscounted && product.discount && (
+                            <div className="mb-3 inline-block bg-red-600 text-white text-[10px] md:text-sm font-bold px-3 py-1.5 rounded-full shadow-md tracking-wider">
+                                {product.discount}% OFF {product.discountEndDate ? `UNTIL ${new Date(product.discountEndDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase()}` : ''}
+                            </div>
+                        )}
                         <p className="text-sm font-medium text-primary mb-2 uppercase tracking-wide">{product.category} • {product.origin || "Unknown Origin"}</p>
                         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">{product.name}</h1>
 
-                        <div className="mt-4 flex items-baseline gap-2 overflow-hidden h-12">
+                        <div className="mt-4 flex flex-col justify-end min-h-[3rem]">
                             <AnimatePresence mode="popLayout">
-                                <motion.p
+                                <motion.div
                                     key={currentPrice}
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ y: -20, opacity: 0 }}
-                                    className="text-2xl font-medium text-primary"
+                                    className="flex items-baseline gap-3"
                                 >
-                                    LKR {currentPrice.toLocaleString()}
-                                </motion.p>
+                                    {isDiscounted && product.discount ? (
+                                        <>
+                                            <span className="text-3xl font-bold text-primary">
+                                                LKR {Math.floor(currentPrice * ((100 - product.discount) / 100)).toLocaleString()}
+                                            </span>
+                                            <span className="text-xl text-muted-foreground line-through decoration-red-500/50">
+                                                LKR {currentPrice.toLocaleString()}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <span className="text-3xl font-medium text-primary">
+                                            LKR {currentPrice.toLocaleString()}
+                                        </span>
+                                    )}
+                                </motion.div>
                             </AnimatePresence>
                         </div>
                     </div>
@@ -151,6 +190,11 @@ function ProductContent() {
                                     );
                                 })}
                             </div>
+                            {currentQuantity > 0 ? (
+                                <p className="text-sm text-green-600 font-medium mt-2">{currentQuantity} available in stock</p>
+                            ) : (
+                                <p className="text-sm text-destructive font-medium mt-2">Currently out of stock</p>
+                            )}
                         </div>
                     )}
 
@@ -172,14 +216,27 @@ function ProductContent() {
                         </div>
                     </div>
 
-                    <div className="flex gap-4 pt-6">
+                    <div className="flex flex-col gap-2 pt-6">
                         <Button
                             size="lg"
-                            className="flex-1 text-lg h-12 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
+                            className="w-full text-lg h-12 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={handleAddToCart}
+                            disabled={currentQuantity === 0}
                         >
-                            Add to Cart
+                            {currentQuantity === 0 ? "Out of Stock" : "Add to Cart"}
                         </Button>
+                        <AnimatePresence>
+                            {addToCartFeedback && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="text-center text-sm font-medium text-green-600 bg-green-50 py-2 rounded-md"
+                                >
+                                    Successfully added to your cart!
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </motion.div>
             </div>

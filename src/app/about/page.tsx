@@ -23,25 +23,24 @@ export default function AboutPage() {
                         <div className="space-y-6 order-2 md:order-1">
                             <h2 className="text-3xl font-bold">The Beginning</h2>
                             <p className="text-lg text-muted-foreground leading-relaxed">
-                                FlavorZest began with a simple yet profound belief: that a fragrance is more than just a scent; it's an invisible accessory that defines who you are. Founded in 2024, we set out to bridge the gap between traditional artisanal perfumery and modern luxury.
+                                FlavorZest was founded on a simple yet profound belief: fragrance is more than just a scent it is an invisible accessory that expresses identity, confidence, and individuality. Established in 2025, our brand was created to bridge the gap between traditional artisanal perfumery and modern luxury.
                             </p>
                             <p className="text-lg text-muted-foreground leading-relaxed">
-                                Our journey started in the heart of Grasse, France, where we collaborated with master perfumers to source the finest ingredients from around the world.
+                                Our journey began in the heart of Mawanella, Sri Lanka, FlavorZest proudly imports premium fragrances from Dubai and curates a distinguished selection of European perfumes, bringing world-class scents to our customers.
+                            </p>
+                            <p className="text-lg text-muted-foreground leading-relaxed">
+                                By sourcing the finest ingredients and collaborating with renowned fragrance houses, we ensure that every bottle reflects sophistication, quality, and timeless elegance.
                             </p>
                         </div>
                         <div className="relative aspect-square md:aspect-[4/3] bg-secondary rounded-lg overflow-hidden order-1 md:order-2">
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                                About Image 1 Placeholder
-                            </div>
+                            <Image src="/images/di.png" alt="FlavorZest Logo" fill className="object-cover" />
                         </div>
                     </div>
 
                     {/* Section 2 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                         <div className="relative aspect-square md:aspect-[4/3] bg-secondary rounded-lg overflow-hidden">
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                                About Image 2 Placeholder
-                            </div>
+                            <Image src="/images/lattafa_his_confession.jpeg" alt="Lattafa His Confession" fill className="object-cover" />
                         </div>
                         <div className="space-y-6">
                             <h2 className="text-3xl font-bold">Sustainable Luxury</h2>

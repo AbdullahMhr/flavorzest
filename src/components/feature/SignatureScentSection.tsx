@@ -12,6 +12,9 @@ export function SignatureScentSection() {
 
     if (!product) return null;
 
+    const variant100ml = product.variants?.find(v => v.size.toLowerCase() === '100ml');
+    const displayPrice = variant100ml ? variant100ml.price : product.price;
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -20,7 +23,7 @@ export function SignatureScentSection() {
             transition={{ duration: 0.8 }}
             className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
         >
-            <div className="relative aspect-square lg:aspect-[4/5] rounded-lg overflow-hidden group">
+            <div className="relative aspect-square lg:aspect-[4/5] rounded-lg overflow-hidden group w-full max-w-sm mx-auto lg:max-w-md">
                 <Image
                     src={product.image}
                     alt={product.name}
@@ -56,9 +59,7 @@ export function SignatureScentSection() {
 
                 <div className="flex gap-4">
                     <div className="text-2xl font-medium text-primary lkr-price">
-                        LKR {product.variants && product.variants.length > 0
-                            ? Math.min(...product.variants.map(v => v.price)).toLocaleString()
-                            : product.price.toLocaleString()}
+                        LKR {displayPrice.toLocaleString()}
                     </div>
                 </div>
 

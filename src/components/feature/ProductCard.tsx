@@ -14,12 +14,24 @@ interface ProductCardProps {
     image: string;
     category: string;
     variants?: ProductVariant[];
+    discount?: number;
+    discountEndDate?: string;
 }
 
-export function ProductCard({ id, name, price, image, category, variants }: ProductCardProps) {
-    const displayPrice = variants && variants.length > 0
-        ? Math.min(...variants.map(v => v.price))
-        : price;
+export function ProductCard({ id, name, price, image, category, variants, discount, discountEndDate }: ProductCardProps) {
+    // Find 100ml variant price if available
+    const variant100ml = variants?.find(v => v.size.toLowerCase() === '100ml');
+    const basePrice = variant100ml ? variant100ml.price : price;
+
+    // Calculate if discount is currently active
+    const isDiscountValid = () => {
+        if (!discount || discount <= 0) return false;
+        if (!discountEndDate) return true;
+        return new Date() <= new Date(discountEndDate);
+    };
+
+    const isDiscounted = isDiscountValid();
+    const salePrice = isDiscounted ? Math.floor(basePrice * ((100 - (discount || 0)) / 100)) : basePrice;
 
     return (
         <motion.div
@@ -28,6 +40,11 @@ export function ProductCard({ id, name, price, image, category, variants }: Prod
             className="group relative overflow-hidden rounded-lg border bg-card hover:shadow-xl hover:border-primary/50"
         >
             <div className="aspect-square relative overflow-hidden bg-muted">
+                {isDiscounted && (
+                    <div className="absolute top-2 right-2 z-20 bg-red-600 text-white text-[10px] md:text-xs font-bold px-2.5 py-1 rounded shadow-md tracking-wider">
+                        {discount}% OFF {discountEndDate ? `UNTIL ${new Date(discountEndDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase()}` : ''}
+                    </div>
+                )}
                 {/* Placeholder image logic since we might not have real images yet */}
                 <div className="absolute inset-0 flex items-center justify-center text-muted-foreground bg-secondary/20">
                     {image ? (
@@ -53,10 +70,18 @@ export function ProductCard({ id, name, price, image, category, variants }: Prod
                             </Link>
                         </h3>
                     </div>
-                    <p className="font-medium text-primary">
-                        {variants && variants.length > 0 ? "From " : ""}
-                        LKR {displayPrice.toLocaleString()}
-                    </p>
+                    <div className="text-right">
+                        {isDiscounted ? (
+                            <div className="flex flex-col items-end leading-tight">
+                                <span className="font-bold text-primary">LKR {salePrice.toLocaleString()}</span>
+                                <span className="text-xs text-muted-foreground line-through">LKR {basePrice.toLocaleString()}</span>
+                            </div>
+                        ) : (
+                            <p className="font-medium text-primary">
+                                LKR {basePrice.toLocaleString()}
+                            </p>
+                        )}
+                    </div>
                 </div>
                 <Button asChild className="w-full mt-4 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground z-10 relative opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
                     <Link href={`/product?id=${id}`}>View Details</Link>

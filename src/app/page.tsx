@@ -1,3 +1,5 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
@@ -5,9 +7,13 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SignatureScentSection } from "@/components/feature/SignatureScentSection";
 import { FeaturedProductsSection } from "@/components/feature/FeaturedProductsSection";
+import { SpecialOffersSection } from "@/components/feature/SpecialOffersSection";
 import Image from "next/image";
+import { useSettings } from "@/lib/context/SettingsContext";
 
 export default function Home() {
+  const { settings } = useSettings();
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -17,8 +23,8 @@ export default function Home() {
         <section className="relative h-[80vh] flex items-center justify-center overflow-hidden bg-black text-white">
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 z-10" />
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-50"
-            style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1615634260167-c8cdede054de?q=80&w=2560&auto=format&fit=crop)' }}
+            className="absolute inset-0 bg-cover bg-center opacity-70"
+            style={{ backgroundImage: `url(${settings.heroImage})` }}
           />
 
           <div className="relative z-20 container mx-auto px-4 text-center space-y-6">
@@ -39,9 +45,19 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Featured Collection */}
-        <section className="py-20 bg-background">
+        {/* Special Offers Carousel */}
+        <SpecialOffersSection />
+
+        {/* Highlight Section (Signature Scent) */}
+        <section className="py-20 bg-muted">
           <div className="container mx-auto px-4">
+            <SignatureScentSection />
+          </div>
+        </section>
+
+        {/* Featured Collection */}
+        <section className="py-20 bg-background relative overflow-hidden">
+          <div className="container mx-auto px-4 relative z-10">
             <div className="flex justify-between items-end mb-12">
               <div>
                 <h2 className="text-3xl font-bold tracking-tight mb-2">Curated Selections</h2>
@@ -59,13 +75,6 @@ export default function Home() {
                 <Link href="/collection">View All Collection</Link>
               </Button>
             </div>
-          </div>
-        </section>
-
-        {/* Highlight Section */}
-        <section className="py-20 bg-muted">
-          <div className="container mx-auto px-4">
-            <SignatureScentSection />
           </div>
         </section>
       </main>

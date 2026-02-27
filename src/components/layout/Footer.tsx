@@ -18,9 +18,9 @@ export function Footer() {
                         <h4 className="text-sm font-semibold uppercase tracking-widest text-foreground/80">Shop</h4>
                         <ul className="space-y-3 text-sm text-muted-foreground">
                             <li><Link href="/collection" className="hover:text-primary transition-colors">All Fragrances</Link></li>
-                            <li><Link href="/collection?category=men" className="hover:text-primary transition-colors">For Him</Link></li>
-                            <li><Link href="/collection?category=women" className="hover:text-primary transition-colors">For Her</Link></li>
-                            <li><Link href="/collection?category=unisex" className="hover:text-primary transition-colors">Unisex</Link></li>
+                            <li><Link href="/collection?gender=Men" className="hover:text-primary transition-colors">For Him</Link></li>
+                            <li><Link href="/collection?gender=Women" className="hover:text-primary transition-colors">For Her</Link></li>
+                            <li><Link href="/collection?gender=Unisex" className="hover:text-primary transition-colors">Gender Neutral</Link></li>
                         </ul>
                     </div>
 
