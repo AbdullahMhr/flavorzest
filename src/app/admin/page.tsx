@@ -14,14 +14,14 @@ export default function AdminLogin() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const { login, isAuthenticated } = useAuth();
+    const { login, isAuthenticated, isInitializing } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (!isInitializing && isAuthenticated) {
             router.push("/admin/dashboard");
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated, isInitializing, router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,6 +33,18 @@ export default function AdminLogin() {
             setError("Invalid Administrative Credentials");
         }
     };
+
+    if (isInitializing) {
+        return (
+            <div className="flex min-h-screen flex-col">
+                <Header />
+                <main className="flex-1 flex items-center justify-center bg-muted/30">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div className="flex min-h-screen flex-col">

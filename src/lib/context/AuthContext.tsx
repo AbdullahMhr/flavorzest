@@ -23,10 +23,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Initial session check
         const checkSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            setIsAuthenticated(!!session);
+
+            // Validate absolute 2-hour timeout
+            let isSessionValid = !!session;
+            const loginTimeStr = typeof window !== 'undefined' ? localStorage.getItem('admin_login_timestamp') : null;
+
+            if (session && loginTimeStr) {
+                const loginTime = parseInt(loginTimeStr, 10);
+                const twoHours = 2 * 60 * 60 * 1000;
+
+                if (Date.now() - loginTime > twoHours) {
+                    await supabase.auth.signOut();
+                    if (typeof window !== 'undefined') localStorage.removeItem('admin_login_timestamp');
+                    isSessionValid = false;
+                }
+            } else if (session && !loginTimeStr) {
+                // Failsafe: if there's a session but no tracking stamp, boot them to enforce security limits
+                await supabase.auth.signOut();
+                isSessionValid = false;
+            }
+
+            setIsAuthenticated(isSessionValid);
             setIsInitializing(false);
 
-            if (pathname?.startsWith("/admin") && pathname !== "/admin" && !session) {
+            if (pathname?.startsWith("/admin") && pathname !== "/admin" && !isSessionValid) {
                 router.push("/admin");
             }
         };
@@ -57,11 +77,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return false;
         }
 
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('admin_login_timestamp', Date.now().toString());
+        }
         return true;
     };
 
     const logout = async () => {
         await supabase.auth.signOut();
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('admin_login_timestamp');
+        }
         setIsAuthenticated(false);
         router.push("/admin");
     };
