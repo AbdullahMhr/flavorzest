@@ -34,7 +34,7 @@ export default function AdminLogin() {
         }
     };
 
-    if (isInitializing) {
+    if (isInitializing || isAuthenticated) {
         return (
             <div className="flex min-h-screen flex-col">
                 <Header />
