@@ -36,6 +36,17 @@ function CollectionContent() {
     const [searchQuery, setSearchQuery] = useState(urlSearch || "");
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
+    // Synchronize URL search parameters into local state when changed externally (e.g. from Header navigation)
+    useEffect(() => {
+        setSearchQuery(urlSearch || "");
+    }, [urlSearch]);
+
+    // Synchronize gender/category parameters
+    useEffect(() => {
+        if (urlGender) setSelectedGender(urlGender.charAt(0).toUpperCase() + urlGender.slice(1).toLowerCase());
+        else if (urlCategory) setSelectedGender(urlCategory.charAt(0).toUpperCase() + urlCategory.slice(1).toLowerCase());
+    }, [urlGender, urlCategory]);
+
     const filteredProducts = products.filter((product) => {
         const q = searchQuery.toLowerCase();
         const matchesSearch = q
