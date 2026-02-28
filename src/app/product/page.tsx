@@ -23,7 +23,7 @@ function ProductContent() {
     const [addToCartFeedback, setAddToCartFeedback] = useState(false);
 
     // Find product
-    const product = products.find(p => p.id === id);
+    const product = products.find(p => p.id === id && !p.isHidden);
 
     useEffect(() => {
         if (product) {

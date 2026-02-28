@@ -10,7 +10,7 @@ export function SignatureScentSection() {
     const { getSignatureScent } = useProducts();
     const product = getSignatureScent();
 
-    if (!product) return null;
+    if (!product || product.isHidden) return null;
 
     const variant100ml = product.variants?.find(v => v.size.toLowerCase() === '100ml');
     const displayPrice = variant100ml ? variant100ml.price : product.price;
