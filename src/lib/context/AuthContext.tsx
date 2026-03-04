@@ -70,26 +70,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Listen for auth changes to sync tabs automatically
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'INITIAL_SESSION') return; // Handled by checkSession
+            if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') return; // Handled by checkSession / login
 
-            let adminStatus = false;
-            let isSessionValid = !!session;
-
-            if (session) {
-                try {
-                    const { data } = await supabase
-                        .from('profiles')
-                        .select('is_admin')
-                        .eq('id', session.user.id)
-                        .single();
-                    if (data?.is_admin) adminStatus = true;
-                } catch (err) {
-                    console.error("Error on auth state change:", err);
-                }
+            if (!session) {
+                setIsAuthenticated(false);
+                setIsAdmin(false);
+                return;
             }
 
-            setIsAuthenticated(isSessionValid);
-            setIsAdmin(adminStatus);
+            // For background events like TOKEN_REFRESHED, maintain existing session
+            setIsAuthenticated(true);
         });
 
         return () => subscription.unsubscribe();
