@@ -22,6 +22,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     useEffect(() => {
+        let isActive = true;
+
         // Initial session check
         const checkSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
@@ -61,8 +63,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
             }
 
-            setIsAuthenticated(isSessionValid);
-            setIsAdmin(adminStatus);
+            if (!isActive) return;
+
+            setIsAuthenticated(prev => prev ? true : isSessionValid);
+            setIsAdmin(prev => prev ? true : adminStatus);
             setIsInitializing(false);
         };
 
@@ -82,7 +86,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setIsAuthenticated(true);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            isActive = false;
+            subscription.unsubscribe();
+        };
     }, []); // Only run once on mount
 
     // Centralized Security Routing Guard
