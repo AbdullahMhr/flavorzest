@@ -88,9 +88,14 @@ function EditProductContent() {
             price: formData.variants && formData.variants.length > 0 ? Math.min(...formData.variants.map(v => v.price)) : (formData.price || 0)
         };
 
-        await updateProduct(id, updatedProduct);
-        setLoading(false);
-        router.push("/admin/dashboard");
+        try {
+            await updateProduct(id, updatedProduct);
+            router.push("/admin/dashboard");
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (isInitializing) {

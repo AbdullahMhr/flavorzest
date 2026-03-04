@@ -3,6 +3,12 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Mail, Phone, MapPin } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Contact Us | FlavorZest",
+    description: "Get in touch with FlavorZest for inquiries about our luxury fragrance collection.",
+};
 
 export default function ContactPage() {
     return (

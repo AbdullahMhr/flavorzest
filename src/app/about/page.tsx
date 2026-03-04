@@ -1,6 +1,12 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import Image from "next/image";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "About Us | FlavorZest",
+    description: "Learn about the heritage, craftsmanship, and passion behind FlavorZest's luxury fragrance collection.",
+};
 
 export default function AboutPage() {
     return (

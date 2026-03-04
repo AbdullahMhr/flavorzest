@@ -83,7 +83,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
             console.error("Error adding product:", error);
-            return;
+            throw new Error("Failed to add product: " + error.message);
         }
 
         const newProductId = data.id;
@@ -119,7 +119,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             const { error } = await supabase.from("products").update(dbUpdates).eq("id", updateId);
             if (error) {
                 console.error("Error updating product:", error);
-                alert("Database Update Failed: " + (error.message || JSON.stringify(error)));
+                throw new Error("Database Update Failed: " + (error.message || JSON.stringify(error)));
             }
         }
 
@@ -146,18 +146,20 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         // 1. Fetch the product first to get the image URL so we can delete the physical file
         const { data: productToDelete } = await supabase.from("products").select("image").eq("id", id).single();
 
-        if (productToDelete?.image) {
+        if (productToDelete?.image?.includes('supabase.co')) {
             try {
                 // Extract filename from the standard Supabase public URL structure
-                // e.g. https://.../storage/v1/object/public/perfumes/1771903691472-abcd.webp
                 const urlParts = productToDelete.image.split('/perfumes/');
                 if (urlParts.length > 1) {
                     const fileName = urlParts[1].split('?')[0]; // Handle potential query params
                     const { error: storageError } = await supabase.storage.from("perfumes").remove([fileName]);
-                    if (storageError) console.error("Warn: Failed to delete image from storage:", storageError);
+                    if (storageError) {
+                        throw new Error("Failed to delete image from storage: " + storageError.message);
+                    }
                 }
-            } catch (err) {
+            } catch (err: any) {
                 console.error("Warn: Image cleanup parser failed:", err);
+                throw new Error("Image cleanup failed: " + err.message);
             }
         }
 
@@ -165,7 +167,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         const { error } = await supabase.from("products").delete().eq("id", id);
         if (error) {
             console.error("Error deleting product:", error);
-            alert("Database Error: Failed to delete product row.");
+            throw new Error("Database Error: Failed to delete product row.");
         } else {
             setProducts((prev) => prev.filter((p) => p.id !== id));
         }

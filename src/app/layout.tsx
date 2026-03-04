@@ -19,6 +19,17 @@ export const metadata: Metadata = {
   title: "FlavorZest | Luxury Fragrances",
   description: "Discover your signature scent with FlavorZest's exclusive collection of luxury perfumes.",
   manifest: "/manifest.json",
+  openGraph: {
+    title: "FlavorZest | Luxury Fragrances",
+    description: "Discover your signature scent with FlavorZest's exclusive collection of luxury perfumes.",
+    type: "website",
+    siteName: "FlavorZest",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FlavorZest | Luxury Fragrances",
+    description: "Discover your signature scent with FlavorZest's exclusive collection of luxury perfumes.",
+  }
 };
 
 export const viewport = {
