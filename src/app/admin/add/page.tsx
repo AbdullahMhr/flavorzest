@@ -72,14 +72,9 @@ export default function AddProductPage() {
             price: formData.variants && formData.variants.length > 0 ? Math.min(...formData.variants.map(v => v.price)) : (formData.price || 0)
         };
 
-        try {
-            await addProduct(newProduct);
-            router.push("/admin/dashboard");
-        } catch (err: any) {
-            alert(err.message);
-        } finally {
-            setLoading(false);
-        }
+        await addProduct(newProduct);
+        setLoading(false);
+        router.push("/admin/dashboard");
     };
 
     if (isInitializing || !isAuthenticated) return null;

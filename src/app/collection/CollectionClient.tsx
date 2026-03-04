@@ -1,11 +1,10 @@
 "use client";
 
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/feature/ProductCard";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useProducts } from "@/lib/context/ProductContext";
+import { Product } from "@/lib/types";
 
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,7 +12,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Filter, X, Search } from "lucide-react";
 import DOMPurify from "dompurify";
-import { Product } from "@/lib/types";
 
 function CollectionContent({ initialProducts }: { initialProducts: Product[] }) {
     const searchParams = useSearchParams();

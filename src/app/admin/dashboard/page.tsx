@@ -54,28 +54,16 @@ export default function AdminDashboard() {
     if (!isAuthenticated) return null;
 
     const toggleSignature = async (id: string, currentStatus: boolean) => {
-        try {
-            await updateProduct(id, { isSignature: !currentStatus });
-        } catch (err: any) {
-            alert(err.message);
-        }
+        await updateProduct(id, { isSignature: !currentStatus });
     };
 
     const toggleVisibility = async (id: string, isHidden: boolean | undefined) => {
-        try {
-            await updateProduct(id, { isHidden: !isHidden });
-        } catch (err: any) {
-            alert(err.message);
-        }
+        await updateProduct(id, { isHidden: !isHidden });
     };
 
     const handleDelete = async (id: string) => {
         if (confirm("Are you sure you want to delete this fragrance? This action cannot be undone.")) {
-            try {
-                await deleteProduct(id);
-            } catch (err: any) {
-                alert(err.message);
-            }
+            await deleteProduct(id);
         }
     };
 

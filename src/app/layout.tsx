@@ -23,6 +23,7 @@ export const metadata: Metadata = {
     title: "FlavorZest | Luxury Fragrances",
     description: "Discover your signature scent with FlavorZest's exclusive collection of luxury perfumes.",
     type: "website",
+    locale: "en_US",
     siteName: "FlavorZest",
   },
   twitter: {

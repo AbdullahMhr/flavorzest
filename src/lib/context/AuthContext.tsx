@@ -22,17 +22,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     useEffect(() => {
-        let isActive = true;
-
         // Initial session check
         const checkSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
 
-            // Validate absolute 2-hour timeout
             let isSessionValid = !!session;
+            let userIsAdmin = false;
+
+            if (session) {
+                // Interrogate profiles table for real admin privileges
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('is_admin')
+                    .eq('id', session.user.id)
+                    .single();
+
+                userIsAdmin = !!profile?.is_admin;
+            }
+
+            // Failsafe: if there's a session but the user is not a real admin, boot them
+            if (session && !userIsAdmin) {
+                await supabase.auth.signOut();
+                isSessionValid = false;
+            }
+
+            // Validate absolute 2-hour timeout
             const loginTimeStr = typeof window !== 'undefined' ? localStorage.getItem('admin_login_timestamp') : null;
 
-            if (session && loginTimeStr) {
+            if (isSessionValid && loginTimeStr) {
                 const loginTime = parseInt(loginTimeStr, 10);
                 const twoHours = 2 * 60 * 60 * 1000;
 
@@ -41,105 +58,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     if (typeof window !== 'undefined') localStorage.removeItem('admin_login_timestamp');
                     isSessionValid = false;
                 }
-            } else if (session && !loginTimeStr) {
+            } else if (isSessionValid && !loginTimeStr) {
                 // Failsafe: if there's a session but no tracking stamp, boot them to enforce security limits
                 await supabase.auth.signOut();
                 isSessionValid = false;
             }
 
-            let adminStatus = false;
-            if (isSessionValid && session) {
-                try {
-                    const { data, error } = await supabase
-                        .from('profiles')
-                        .select('is_admin')
-                        .eq('id', session.user.id)
-                        .single();
-                    if (data?.is_admin) {
-                        adminStatus = true;
-                    }
-                } catch (err) {
-                    console.error("Error fetching profile:", err);
-                }
-            }
-
-            if (!isActive) return;
-
-            setIsAuthenticated(prev => prev ? true : isSessionValid);
-            setIsAdmin(prev => prev ? true : adminStatus);
+            setIsAuthenticated(isSessionValid);
+            setIsAdmin(userIsAdmin);
             setIsInitializing(false);
+
+            if (pathname?.startsWith("/admin") && pathname !== "/admin" && !isSessionValid) {
+                router.push("/admin");
+            }
         };
 
         checkSession();
 
         // Listen for auth changes to sync tabs automatically
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') return; // Handled by checkSession / login
-
-            if (!session) {
-                setIsAuthenticated(false);
-                setIsAdmin(false);
-                return;
-            }
-
-            // For background events like TOKEN_REFRESHED, maintain existing session
-            setIsAuthenticated(true);
-        });
-
-        return () => {
-            isActive = false;
-            subscription.unsubscribe();
-        };
-    }, []); // Only run once on mount
-
-    // Centralized Security Routing Guard
-    useEffect(() => {
-        if (!isInitializing && pathname?.startsWith("/admin") && pathname !== "/admin") {
-            if (!isAuthenticated || !isAdmin) {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setIsAuthenticated(!!session);
+            if (!session && pathname?.startsWith("/admin") && pathname !== "/admin") {
                 router.push("/admin");
             }
-        }
-    }, [isInitializing, isAuthenticated, isAdmin, pathname, router]);
+        });
+
+        return () => subscription.unsubscribe();
+    }, [pathname, router]);
 
     const login = async (password: string, username?: string) => {
         if (!username || !password) return false;
 
-        const { data: authData, error } = await supabase.auth.signInWithPassword({
+        const { data: { user }, error } = await supabase.auth.signInWithPassword({
             email: username,
             password: password,
         });
 
-        if (error || !authData.session) {
-            console.error("Login Error:", error?.message);
+        if (error || !user) {
+            console.error("Login Error:", error?.message || "User missing");
             return false;
         }
 
-        // Check is_admin immediately
-        try {
-            const { data } = await supabase
-                .from('profiles')
-                .select('is_admin')
-                .eq('id', authData.session.user.id)
-                .single();
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', user.id)
+            .single();
 
-            if (!data?.is_admin) {
-                await supabase.auth.signOut();
-                console.error("Login Error: User is not an administrator");
-                return false;
-            }
-        } catch (err) {
+        if (!profile?.is_admin) {
             await supabase.auth.signOut();
-            console.error("Login Error: Could not verify administrator status");
+            console.error("Access Denied: User is not an admin.");
             return false;
         }
-
-        // Admin verified
-        setIsAuthenticated(true);
-        setIsAdmin(true);
 
         if (typeof window !== 'undefined') {
             localStorage.setItem('admin_login_timestamp', Date.now().toString());
         }
+        setIsAdmin(true);
         return true;
     };
 

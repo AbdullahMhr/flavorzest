@@ -6,8 +6,8 @@ import { supabase } from "../supabase";
 
 interface ProductContextType {
     products: Product[];
-    addProduct: (product: Product) => Promise<void>;
-    updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
+    addProduct: (product: Product) => Promise<boolean>;
+    updateProduct: (id: string, updates: Partial<Product>) => Promise<boolean>;
     deleteProduct: (id: string) => Promise<void>;
     getSignatureScent: () => Product | undefined;
     reorderProduct: (id: string, direction: 'up' | 'down') => Promise<void>;
@@ -66,7 +66,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         fetchProducts();
     }, []);
 
-    const addProduct = async (product: Omit<Product, 'id'>) => {
+    const addProduct = async (product: Omit<Product, 'id'>): Promise<boolean> => {
         // Strip out variants and pseudo-id from base insertion
         const { id, variants, discountEndDate, ...productData } = product as any;
 
@@ -83,7 +83,8 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
             console.error("Error adding product:", error);
-            throw new Error("Failed to add product: " + error.message);
+            alert("Database Error: Failed to add product. " + error.message);
+            return false;
         }
 
         const newProductId = data.id;
@@ -96,13 +97,17 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
                 quantity: v.quantity
             }));
             const { error: vError } = await supabase.from("product_variants").insert(variantsData);
-            if (vError) console.error("Error adding variants:", vError);
+            if (vError) {
+                console.error("Error adding variants:", vError);
+                alert("Database Error: Failed to add product variants.");
+            }
         }
 
         await fetchProducts();
+        return true;
     };
 
-    const updateProduct = async (updateId: string, updates: Partial<Product>) => {
+    const updateProduct = async (updateId: string, updates: Partial<Product>): Promise<boolean> => {
         const { variants, discountEndDate, id, ...productUpdates } = updates as any;
 
         // If setting signature, unset others in the cloud first
@@ -119,7 +124,8 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             const { error } = await supabase.from("products").update(dbUpdates).eq("id", updateId);
             if (error) {
                 console.error("Error updating product:", error);
-                throw new Error("Database Update Failed: " + (error.message || JSON.stringify(error)));
+                alert("Database Update Failed: " + (error.message || JSON.stringify(error)));
+                return false;
             }
         }
 
@@ -140,26 +146,31 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         }
 
         await fetchProducts();
+        return true;
     };
 
     const deleteProduct = async (id: string) => {
         // 1. Fetch the product first to get the image URL so we can delete the physical file
         const { data: productToDelete } = await supabase.from("products").select("image").eq("id", id).single();
 
-        if (productToDelete?.image?.includes('supabase.co')) {
+        if (productToDelete?.image) {
             try {
                 // Extract filename from the standard Supabase public URL structure
+                // e.g. https://.../storage/v1/object/public/perfumes/1771903691472-abcd.webp
                 const urlParts = productToDelete.image.split('/perfumes/');
                 if (urlParts.length > 1) {
                     const fileName = urlParts[1].split('?')[0]; // Handle potential query params
                     const { error: storageError } = await supabase.storage.from("perfumes").remove([fileName]);
                     if (storageError) {
-                        throw new Error("Failed to delete image from storage: " + storageError.message);
+                        console.error("Error: Failed to delete image from storage:", storageError);
+                        alert("Storage Error: Failed to delete product image. Deletion aborted to prevent orphaned files.");
+                        return; // Halt deletion to prevent orphaned images
                     }
                 }
-            } catch (err: any) {
-                console.error("Warn: Image cleanup parser failed:", err);
-                throw new Error("Image cleanup failed: " + err.message);
+            } catch (err) {
+                console.error("Error: Image cleanup parser failed:", err);
+                alert("Storage Error: Corrupted image URL structure. Deletion aborted.");
+                return;
             }
         }
 
@@ -167,7 +178,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         const { error } = await supabase.from("products").delete().eq("id", id);
         if (error) {
             console.error("Error deleting product:", error);
-            throw new Error("Database Error: Failed to delete product row.");
+            alert("Database Error: Failed to delete product row.");
         } else {
             setProducts((prev) => prev.filter((p) => p.id !== id));
         }

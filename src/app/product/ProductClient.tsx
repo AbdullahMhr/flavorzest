@@ -1,8 +1,7 @@
 "use client";
 
 import { useProducts } from "@/lib/context/ProductContext";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { Product } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import { useState, useEffect, Suspense } from "react";
@@ -10,7 +9,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/context/CartContext";
-import { Product } from "@/lib/types";
 
 function ProductContent({ initialProduct }: { initialProduct?: Product }) {
     const searchParams = useSearchParams();
@@ -24,7 +22,8 @@ function ProductContent({ initialProduct }: { initialProduct?: Product }) {
     const [addToCartFeedback, setAddToCartFeedback] = useState(false);
 
     // Find product
-    const product = (products.length > 0) ? products.find(p => p.id === id && !p.isHidden) : initialProduct;
+    const contextProduct = products.find(p => p.id === id && !p.isHidden);
+    const product = contextProduct || initialProduct;
 
     useEffect(() => {
         if (product) {
