@@ -64,16 +64,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setIsAuthenticated(isSessionValid);
             setIsAdmin(adminStatus);
             setIsInitializing(false);
-
-            if (pathname?.startsWith("/admin") && pathname !== "/admin" && !adminStatus) {
-                router.push("/admin");
-            }
         };
 
         checkSession();
 
         // Listen for auth changes to sync tabs automatically
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'INITIAL_SESSION') return; // Handled by checkSession
+
             let adminStatus = false;
             let isSessionValid = !!session;
 
@@ -92,13 +90,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             setIsAuthenticated(isSessionValid);
             setIsAdmin(adminStatus);
-            if (!adminStatus && pathname?.startsWith("/admin") && pathname !== "/admin") {
-                router.push("/admin");
-            }
         });
 
         return () => subscription.unsubscribe();
-    }, [pathname, router]);
+    }, []); // Only run once on mount
+
+    // Centralized Security Routing Guard
+    useEffect(() => {
+        if (!isInitializing && pathname?.startsWith("/admin") && pathname !== "/admin") {
+            if (!isAuthenticated || !isAdmin) {
+                router.push("/admin");
+            }
+        }
+    }, [isInitializing, isAuthenticated, isAdmin, pathname, router]);
 
     const login = async (password: string, username?: string) => {
         if (!username || !password) return false;
@@ -133,6 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Admin verified
+        setIsAuthenticated(true);
         setIsAdmin(true);
 
         if (typeof window !== 'undefined') {
